@@ -8,32 +8,65 @@
 //imagecopyresized($nm, $image, 0,0,0,0,100,75,$ox,$oy);
 //imagejpeg($nm, "images/1-thumb.jpg");
 
-function createThumbnail($file, $nx, $dir){
+Class Thumbnails{
 
-  $thumnail_path = $dir . "/thumbnails";
-  $image = imagecreatefromjpeg($dir . "/" . $file);
-  $mx  = imagesx($image);
-  $my = imagesy($image);
-  $ny = floor( $my * ( $nx / $mx));
-  $nm = imagecreatetruecolor($nx, $ny);
-  imagecopyresized($nm, $image, 0, 0, 0, 0, $nx, $ny, $mx, $my);
+  public $dir;
 
-  if(!file_exists($thumnail_path)){
-    if(!mkdir($thumnail_path)){
-      die("can't create thumbnails file");
+  public function __construct($dir){
+    $this->dir = $dir;
+  }
+  public function createThumbnail($file, $nx){
+
+    $image = imagecreatefromjpeg($this->dir . "/" . $file);
+    list($mx, $my) = $this->getXY($image);
+    $ny = floor( $my * ( $nx / $mx));
+    $nm = imagecreatetruecolor($nx, $ny);
+    imagecopyresized($nm, $image, 0, 0, 0, 0, $nx, $ny, $mx, $my);
+    imagejpeg($nm, $this->getPath() . "/" . $file);
+
+  }
+
+  public function getPath(){
+
+  return $this->dir . "/thumbnails";
+
+  }
+
+  protected function createPath(){
+
+    if(!file_exists($this->getPath())){
+      if(!mkdir($this->getPath())){
+        die("can't create thumbnails file");
+      }
     }
   }
 
-  imagejpeg($nm, $thumnail_path . "/" . $file);
-}
 
-$files = scandir('images');
-foreach($files as $file){
-  if( $file != "." && $file != ".." && preg_match('/[.](jpg)|(gif)|(png)$/', $file)){
-    print ($file . "\n");
-    createThumbnail($file, 200, "images");
-    print($file . "has been created");
+
+  public function getXY($image){
+
+    $mx  = imagesx($image);
+    $my = imagesy($image);
+    return [$mx, $my];
+
   }
 
+  public function make($xlength){
+
+    $files = scandir($this->dir);
+    $this->createPath();
+  foreach($files as $file){
+    if( $file != "." && $file != ".." && preg_match('/[.](jpg)|(gif)|(png)$/', $file)){
+      $this->createThumbnail($file, $xlength);
+      print($file . "has been created \n");
+    }
+
+  }
+  }
+
+
 }
+
+$thumnail = new Thumbnails("images");
+$thumnail->make(200);
 
