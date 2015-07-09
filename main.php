@@ -139,5 +139,7 @@ $dir = readline();
 $thumnail = new Thumbnails($dir);
 $thumnail->make(200);
  */
-$image = new ImageManipulation(new CreateThumbnails, new DowngradImage, "images");
+print "Please give the directory you want to operate. \n";
+$dir = readline();
+$image = new ImageManipulation(new CreateThumbnails, new DowngradImage, $dir);
 $image->make(100, 30);
